@@ -1,14 +1,34 @@
 import React, { useState, useEffect } from "react";
-// import Navbar from "../components/Navbar";
-// import Footer from "../components/Footer";
 import AddProduct from "../components/AddProduct";
 import AdminProductList from "../Components/AdminProductList";
 import { Package, Plus, List, User } from "lucide-react";
+import { fetchProducts, deleteProduct, editProduct } from "../api/Client.js";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
   // Mock admin check - in a real app, this would check authentication
-  const isAdmin = true; // You can implement proper admin authentication later
+  const isAdmin = true;
+
+  // Fetch products on component mount and when refreshTrigger changes
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchProducts();
+        setProducts(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, [refreshTrigger]);
 
   if (!isAdmin) {
     return (
@@ -25,10 +45,33 @@ const Dashboard = () => {
     );
   }
 
+  const handleProductAdded = () => {
+    setRefreshTrigger(prev => prev + 1); // Trigger refresh
+  };
+
+  const handleDeleteProduct = async (productId) => {
+  try {
+    await deleteProduct(productId);
+    alert("Product deleted successfully!");
+    setRefreshTrigger(prev => prev + 1); // Refresh list
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    alert("Error deleting product. Please try again.");
+  }
+};
+
+  const handleEditProduct = async (updatedProduct) => {
+    try {
+      
+      await updateProduct(productId);
+      setRefreshTrigger(prev => prev + 1); // Refresh list
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
   return (
     <>
-      {/* <Navbar /> */}
-
       <div className="min-h-screen bg-gray-50 pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
@@ -50,8 +93,9 @@ const Dashboard = () => {
                   <p className="text-sm font-medium text-gray-600">
                     Total Products
                   </p>
-                  {/* You may remove this or fetch product count in AdminProductList if needed */}
-                  <p className="text-2xl font-bold text-gray-900">-</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {loading ? "-" : products.length}
+                  </p>
                 </div>
               </div>
             </div>
@@ -79,7 +123,9 @@ const Dashboard = () => {
                   <p className="text-sm font-medium text-gray-600">
                     Categories
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">-</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {loading ? "-" : [...new Set(products.map(p => p.category))].length}
+                  </p>
                 </div>
               </div>
             </div>
@@ -119,7 +165,7 @@ const Dashboard = () => {
                   }`}
                 >
                   <Package className="w-4 h-4" />
-                  My Products
+                  My Products ({products.length})
                 </button>
               </nav>
             </div>
@@ -159,28 +205,45 @@ const Dashboard = () => {
                         Recent Activity
                       </h3>
                       <div className="space-y-2">
-                        {/* You may fetch and show recent products in AdminProductList if needed */}
-                        <p className="text-sm text-blue-600">No products added yet</p>
+                        {loading ? (
+                          <p className="text-sm text-blue-600">Loading...</p>
+                        ) : products.length === 0 ? (
+                          <p className="text-sm text-blue-600">No products added yet</p>
+                        ) : (
+                          <div>
+                            <p className="text-sm text-blue-600">
+                              Latest: {products[0]?.name || "No products"}
+                            </p>
+                            <p className="text-xs text-blue-500">
+                              Total products: {products.length}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-
               {activeTab === "add-product" && (
-                <AddProduct />
+                <AddProduct onAddProduct={handleProductAdded} />
               )}
 
               {activeTab === "products" && (
-                <AdminProductList />
+                loading ? (
+                  <div className="text-center py-8">Loading products...</div>
+                ) : (
+                  <AdminProductList 
+                    products={products}
+                    onDeleteProduct={handleDeleteProduct}
+                    onEditProduct={handleEditProduct}
+                  />
+                )
               )}
             </div>
           </div>
         </div>
       </div>
-
-      {/* <Footer/> */}
     </>
   );
 };

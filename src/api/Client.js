@@ -40,4 +40,22 @@ export const adminAddProduct = async (payload) => {
   });
 };
 
+export const deleteProduct = async (id) => {
+  const token = localStorage.getItem("adminToken");
+  return apiClient.delete(`/api/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const editProduct = async (id) => {
+  const token = localStorage.getItem("adminToken");
+  return apiClient.put(`/api/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+},
+  });
+};
+
 export const imageBaseUrl = import.meta.env.VITE_IMAGE_BASE_URL;

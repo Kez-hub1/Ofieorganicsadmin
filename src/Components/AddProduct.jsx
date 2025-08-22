@@ -69,38 +69,33 @@ const AddProduct = ({ onAddProduct }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    if (!formData.name || !formData.description || !formData.price || !formData.category) {
-      alert("Please fill in all required fields");
-      setIsSubmitting(false);
-      return;
-    }
+  if (!formData.name || !formData.description || !formData.price || !formData.category) {
+    alert("Please fill in all required fields");
+    setIsSubmitting(false);
+    return;
+  }
 
-    try {
-      // Build FormData for backend (handles file uploads)
-      const payload = new FormData();
-      payload.append("name", formData.name);
-      payload.append("description", formData.description);
-      payload.append("price", formData.price);
-      payload.append("category", formData.category);
-      payload.append("inStock", formData.inStock);
-      if (formData.image) payload.append("image", formData.image);
-      if (formData.ingredients)
-        payload.append("ingredients", JSON.stringify(formData.ingredients.split(",").map(i => i.trim())));
-      if (formData.benefits)
-        payload.append("benefits", JSON.stringify(formData.benefits.split(",").map(b => b.trim())));
+  try {
+    const payload = new FormData();
+    payload.append("name", formData.name);
+    payload.append("description", formData.description);
+    payload.append("price", formData.price);
+    payload.append("category", formData.category);
+    payload.append("stock", formData.inStock ? "100" : "0"); // Add stock field
+    if (formData.image) payload.append("image", formData.image);
+    if (formData.ingredients)
+      payload.append("ingredients", JSON.stringify(formData.ingredients.split(",").map(i => i.trim())));
+    if (formData.benefits)
+      payload.append("benefits", JSON.stringify(formData.benefits.split(",").map(b => b.trim())));
 
-      const res = await adminAddProduct(payload, localStorage.getItem("adminToken"));
+    const res = await adminAddProduct(payload);
 
-      if (res.data) {
-        alert("Product added successfully!");
-        if (onAddProduct) onAddProduct();
-      } else {
-        throw new Error("Failed to add product");
-      }
-
+    if (res.data) {
+      alert("Product added successfully!");
+      
       // Reset form
       setFormData({
         name: "",
@@ -113,14 +108,21 @@ const AddProduct = ({ onAddProduct }) => {
         inStock: true,
       });
       setImagePreview("");
-
-    } catch (error) {
-      console.error("Error adding product:", error);
-      alert("Error adding product. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      
+      // Trigger refresh of product list
+      if (onAddProduct) onAddProduct();
+      
+    } else {
+      throw new Error("Failed to add product");
     }
-  };
+
+  } catch (error) {
+    console.error("Error adding product:", error);
+    alert("Error adding product. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -268,36 +270,6 @@ const AddProduct = ({ onAddProduct }) => {
                   )}
                 </div>
               </div>
-
-              {/* Ingredients */}
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Key Ingredients
-                </label>
-                <textarea
-                  name="ingredients"
-                  value={formData.ingredients}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-green-500"
-                  placeholder="Enter ingredients separated by commas"
-                />
-              </div> */}
-
-              {/* Benefits */}
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Benefits
-                </label>
-                <textarea
-                  name="benefits"
-                  value={formData.benefits}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-green-500"
-                  placeholder="Enter benefits separated by commas"
-                />
-              </div> */}
             </div>
           </div>
 
