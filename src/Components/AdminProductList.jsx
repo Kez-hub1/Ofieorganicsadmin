@@ -10,7 +10,8 @@ import {
   X,
   Save,
 } from "lucide-react";
-import { fetchProducts, deleteProduct, editProduct } from "../api/Client.js";
+import { fetchProducts } from "../api/Client.js";
+import axios from "axios";
 
 // Fetch products from backend and display
 const ProductList = () => {
@@ -62,7 +63,7 @@ const ProductList = () => {
   );
 };
 
-const AdminProductList = ({ products, onDeleteProduct, onEditProduct }) => {
+const AdminProductList = ({ products, onEditProduct }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
@@ -103,13 +104,27 @@ const AdminProductList = ({ products, onDeleteProduct, onEditProduct }) => {
       }
     });
 
-  const handleDelete = (productId, productName) => {
+  const handleDelete = async (productId, productName) => {
     if (
-      window.confirm(
+      !window.confirm(
         `Are you sure you want to delete "${productName}"? This action cannot be undone.`
       )
-    ) {
-      onDeleteProduct(productId);
+    )
+      return;
+    try {
+      const token = localStorage.getItem("adminToken");
+      await axios.delete(
+        `https://keziah-api.onrender.com/api/products/${productId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Product deleted successfully!");
+      window.location.reload(); // reload to update list
+    } catch (error) {
+      alert("Failed to delete product. Please try again.");
     }
   };
 
@@ -284,12 +299,15 @@ const AdminProductList = ({ products, onDeleteProduct, onEditProduct }) => {
                 <div className="flex items-center gap-2 mb-4 text-xs text-gray-500">
                   <Calendar className="w-3 h-3" />
                   <span>
-                    Added {new Date(product.dateAdded || Date.now()).toLocaleDateString()}
+                    Added{" "}
+                    {new Date(
+                      product.dateAdded || Date.now()
+                    ).toLocaleDateString()}
                   </span>
                 </div>
 
                 {/* Ingredients */}
-                {product.ingredients && product.ingredients.length > 0 && (
+                {/* {product.ingredients && product.ingredients.length > 0 && (
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-700 mb-1">
                       Key Ingredients:
@@ -312,11 +330,11 @@ const AdminProductList = ({ products, onDeleteProduct, onEditProduct }) => {
                       )}
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <button
+                  {/* <button
                     onClick={() =>
                       alert("View functionality will show detailed product view")
                     }
@@ -324,7 +342,7 @@ const AdminProductList = ({ products, onDeleteProduct, onEditProduct }) => {
                   >
                     <Eye className="w-4 h-4" />
                     View
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => handleEditClick(product)}
                     className="flex-1 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1"
@@ -333,7 +351,9 @@ const AdminProductList = ({ products, onDeleteProduct, onEditProduct }) => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(product.id || product._id, product.name)}
+                    onClick={() =>
+                      handleDelete(product.id || product._id, product.name)
+                    }
                     className="flex-1 bg-red-50 hover:bg-red-100 text-red-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1"
                   >
                     <Trash2 className="w-4 h-4" />
