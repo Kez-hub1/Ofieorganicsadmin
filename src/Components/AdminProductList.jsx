@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  Edit,
+  Edit as EditIcon,
   Trash2,
   Eye,
   Package,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { fetchProducts } from "../api/Client.js";
 import axios from "axios";
+import Edit from "./Edit.jsx"; 
 
 // Fetch products from backend and display
 const ProductList = () => {
@@ -67,6 +68,10 @@ const AdminProductList = ({ products, onEditProduct }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+
+  // modal state
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Get unique categories from products
   const safeProducts = Array.isArray(products) ? products : [];
@@ -128,9 +133,18 @@ const AdminProductList = ({ products, onEditProduct }) => {
     }
   };
 
-  const handleEditClick = (product) => {
-    // Simple alert for now - you can implement proper edit modal later
-    alert(`Edit functionality for "${product.name}" will be implemented soon!`);
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setShowEditModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setEditingProduct(null);
+    setShowEditModal(false);
+  };
+
+  const handleSave = () => {
+    window.location.reload(); // refresh after saving
   };
 
   if (!Array.isArray(products) || products.length === 0) {
@@ -306,50 +320,16 @@ const AdminProductList = ({ products, onEditProduct }) => {
                   </span>
                 </div>
 
-                {/* Ingredients */}
-                {/* {product.ingredients && product.ingredients.length > 0 && (
-                  <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-700 mb-1">
-                      Key Ingredients:
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {product.ingredients
-                        .slice(0, 3)
-                        .map((ingredient, index) => (
-                          <span
-                            key={index}
-                            className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded"
-                          >
-                            {ingredient}
-                          </span>
-                        ))}
-                      {product.ingredients.length > 3 && (
-                        <span className="text-xs text-gray-500">
-                          +{product.ingredients.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )} */}
-
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  {/* <button
-                    onClick={() =>
-                      alert("View functionality will show detailed product view")
-                    }
-                    className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1"
-                  >
-                    <Eye className="w-4 h-4" />
-                    View
-                  </button> */}
                   <button
-                    onClick={() => handleEditClick(product)}
+                    onClick={() => handleEdit(product)}
                     className="flex-1 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1"
                   >
-                    <Edit className="w-4 h-4" />
+                    <EditIcon className="w-4 h-4" />
                     Edit
                   </button>
+
                   <button
                     onClick={() =>
                       handleDelete(product.id || product._id, product.name)
@@ -370,6 +350,19 @@ const AdminProductList = ({ products, onEditProduct }) => {
       <div className="text-center text-sm text-gray-500">
         Showing {filteredProducts.length} of {products.length} products
       </div>
+
+      {/*Edit Modal */}
+      {showEditModal && editingProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl relative">
+            <Edit
+              productToEdit={editingProduct}
+              onSave={handleSave}
+              onCancel={handleCloseModal}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

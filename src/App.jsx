@@ -29,7 +29,7 @@ const router = createBrowserRouter([
     element: <AdminLogin />,
   },
   {
-    path: "/edit",
+    path: "/edit/:id",
     element: <Edit />,
   },
 ]);

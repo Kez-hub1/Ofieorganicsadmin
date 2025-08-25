@@ -49,12 +49,13 @@ export const deleteProduct = async (id) => {
   });
 };
 
-export const editProduct = async (id) => {
+export const editProduct = async (id, payload) => {
   const token = localStorage.getItem("adminToken");
-  return apiClient.put(`/api/products/${id}`, {
+  return apiClient.put(`/api/products/${id}`, payload, {
     headers: {
       Authorization: `Bearer ${token}`,
-},
+      "Content-Type": "multipart/form-data",
+    },
   });
 };
 

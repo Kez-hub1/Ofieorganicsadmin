@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Save, X, Upload } from "lucide-react";
-import { fetchProducts, apiClient } from "../api/Client";
+import { apiClient } from "../api/Client";
 
-const Edit = () => {
-  const { id } = useParams();
+const Edit = ({ productToEdit, onSave, onCancel }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -14,41 +13,23 @@ const Edit = () => {
     image: null,
     inStock: true,
   });
-  const [categories, setCategories] = useState([]);
   const [imagePreview, setImagePreview] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch categories and product details
+  // Load product data when productToEdit changes
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch categories
-        const catRes = await fetch("/api/categories");
-        const catData = await catRes.json();
-        setCategories(Array.isArray(catData) ? catData : []);
-
-        // Fetch product details
-        const products = await fetchProducts();
-        const product = Array.isArray(products)
-          ? products.find((p) => (p.id || p._id) === id)
-          : null;
-        if (product) {
-          setFormData({
-            name: product.name || "",
-            description: product.description || "",
-            price: product.price || "",
-            category: product.category || "",
-            image: null,
-            inStock: product.inStock ?? true,
-          });
-          if (product.image) setImagePreview(product.image);
-        }
-      } catch (error) {
-        // handle error
-      }
-    };
-    fetchData();
-  }, [id]);
+    if (productToEdit) {
+      setFormData({
+        name: productToEdit.name || "",
+        description: productToEdit.description || "",
+        price: productToEdit.price || "",
+        category: productToEdit.category || "",
+        image: null,
+        inStock: productToEdit.inStock ?? true,
+      });
+      if (productToEdit.image) setImagePreview(productToEdit.image);
+    }
+  }, [productToEdit]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -89,22 +70,27 @@ const Edit = () => {
       payload.append("inStock", formData.inStock);
       if (formData.image) payload.append("image", formData.image);
 
-
-      // PATCH or PUT to update product
       const token = localStorage.getItem("adminToken");
-      await apiClient.put(`/api/products/${id}`, payload, {
+      await apiClient.put(`/api/products/${productToEdit.id || productToEdit._id}`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
       });
       alert("Product updated successfully!");
-      navigate(-1); // Go back
+      if (onSave) onSave(); // Callback to refresh product list
+      if (onCancel) onCancel(); // Close edit form
     } catch (error) {
+      console.error("Error updating product:", error);
       alert("Error updating product. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!productToEdit) {
+    return null; // Don't render if no product is selected for editing
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -143,12 +129,12 @@ const Edit = () => {
                   className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-green-500"
                   required
                 >
-                 <option value="">Select a category</option>
-                    <option>Face Care</option>
-                    <option>Body Care</option>
-                    <option>Hair Care</option>
-                    <option>Makeup</option>
-                    <option>Fragrance</option>
+                  <option value="">Select a category</option>
+                  <option>Face Care</option>
+                  <option>Body Care</option>
+                  <option>Hair Care</option>
+                  <option>Makeup</option>
+                  <option>Fragrance</option>
                 </select>
               </div>
               {/* Price */}
@@ -245,11 +231,17 @@ const Edit = () => {
                   )}
                 </div>
               </div>
-
             </div>
           </div>
           {/* Submit */}
-          <div className="mt-8 flex justify-end">
+          <div className="mt-8 flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg font-medium"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
               disabled={isSubmitting}
