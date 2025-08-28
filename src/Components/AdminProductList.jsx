@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   Edit as EditIcon,
   Trash2,
@@ -12,7 +14,8 @@ import {
 } from "lucide-react";
 import { fetchProducts } from "../api/Client.js";
 import axios from "axios";
-import Edit from "./Edit.jsx"; 
+import Edit from "./Edit.jsx";
+import Modal from "./Modal.jsx";
 
 // Fetch products from backend and display
 const ProductList = () => {
@@ -72,6 +75,9 @@ const AdminProductList = ({ products, onEditProduct }) => {
   // modal state
   const [editingProduct, setEditingProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  // delete modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   // Get unique categories from products
   const safeProducts = Array.isArray(products) ? products : [];
@@ -109,17 +115,19 @@ const AdminProductList = ({ products, onEditProduct }) => {
       }
     });
 
-  const handleDelete = async (productId, productName) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete "${productName}"? This action cannot be undone.`
-      )
-    )
-      return;
+  const handleDeleteClick = (product) => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
     try {
       const token = localStorage.getItem("adminToken");
       await axios.delete(
-        `https://keziah-api.onrender.com/api/products/${productId}`,
+        `https://keziah-api.onrender.com/api/products/${
+          productToDelete.id || productToDelete._id
+        }`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -127,10 +135,17 @@ const AdminProductList = ({ products, onEditProduct }) => {
         }
       );
       alert("Product deleted successfully!");
-      window.location.reload(); // reload to update list
+      setShowDeleteModal(false);
+      setProductToDelete(null);
+      window.location.reload();
     } catch (error) {
       alert("Failed to delete product. Please try again.");
     }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
   };
 
   const handleEdit = (product) => {
@@ -169,6 +184,16 @@ const AdminProductList = ({ products, onEditProduct }) => {
 
   return (
     <div className="space-y-6">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -302,7 +327,7 @@ const AdminProductList = ({ products, onEditProduct }) => {
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {product.inStock ? "In Stock" : "Out of Stock"}
+                    {product.inStock ? "In Stock" : "In of Stock"}
                   </span>
                 </div>
 
@@ -331,9 +356,7 @@ const AdminProductList = ({ products, onEditProduct }) => {
                   </button>
 
                   <button
-                    onClick={() =>
-                      handleDelete(product.id || product._id, product.name)
-                    }
+                    onClick={() => handleDeleteClick(product)}
                     className="flex-1 bg-red-50 hover:bg-red-100 text-red-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -350,6 +373,32 @@ const AdminProductList = ({ products, onEditProduct }) => {
       <div className="text-center text-sm text-gray-500">
         Showing {filteredProducts.length} of {products.length} products
       </div>
+
+      {/* Delete Modal */}
+      <Modal isOpen={showDeleteModal} onClose={handleCancelDelete}>
+        <div className="text-center">
+          <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
+          <p className="mb-6">
+            Are you sure you want to delete{" "}
+            <span className="font-bold">{productToDelete?.name}</span>? This
+            action cannot be undone.
+          </p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={handleCancelDelete}
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-medium"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/*Edit Modal */}
       {showEditModal && editingProduct && (
