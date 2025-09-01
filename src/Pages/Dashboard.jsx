@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AddProduct from "../components/AddProduct";
+import AddProduct from "../Components/AddProduct";
 import AdminProductList from "../Components/AdminProductList";
 import { Package, Plus, List, User } from "lucide-react";
 import { fetchProducts, deleteProduct, editProduct } from "../api/Client.js";
@@ -9,11 +9,11 @@ const Dashboard = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Mock admin check - in a real app, this would check authentication
   const isAdmin = true;
 
-  // Fetch products on component mount and when refreshTrigger changes
+
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
@@ -46,25 +46,24 @@ const Dashboard = () => {
   }
 
   const handleProductAdded = () => {
-    setRefreshTrigger(prev => prev + 1); // Trigger refresh
+    setRefreshTrigger((prev) => prev + 1); // Trigger refresh
   };
 
   const handleDeleteProduct = async (productId) => {
-  try {
-    await deleteProduct(productId);
-    alert("Product deleted successfully!");
-    setRefreshTrigger(prev => prev + 1); // Refresh list
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    alert("Error deleting product. Please try again.");
-  }
-};
+    try {
+      await deleteProduct(productId);
+      alert("Product deleted successfully!");
+      setRefreshTrigger((prev) => prev + 1); // Refresh list
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("Error deleting product. Please try again.");
+    }
+  };
 
   const handleEditProduct = async (updatedProduct) => {
     try {
-      
       await updateProduct(productId);
-      setRefreshTrigger(prev => prev + 1); // Refresh list
+      setRefreshTrigger((prev) => prev + 1); // Refresh list
     } catch (error) {
       console.error("Error updating product:", error);
     }
@@ -124,7 +123,9 @@ const Dashboard = () => {
                     Categories
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {loading ? "-" : [...new Set(products.map(p => p.category))].length}
+                    {loading
+                      ? "-"
+                      : [...new Set(products.map((p) => p.category))].length}
                   </p>
                 </div>
               </div>
@@ -208,7 +209,9 @@ const Dashboard = () => {
                         {loading ? (
                           <p className="text-sm text-blue-600">Loading...</p>
                         ) : products.length === 0 ? (
-                          <p className="text-sm text-blue-600">No products added yet</p>
+                          <p className="text-sm text-blue-600">
+                            No products added yet
+                          </p>
                         ) : (
                           <div>
                             <p className="text-sm text-blue-600">
@@ -229,17 +232,16 @@ const Dashboard = () => {
                 <AddProduct onAddProduct={handleProductAdded} />
               )}
 
-              {activeTab === "products" && (
-                loading ? (
+              {activeTab === "products" &&
+                (loading ? (
                   <div className="text-center py-8">Loading products...</div>
                 ) : (
-                  <AdminProductList 
+                  <AdminProductList
                     products={products}
                     onDeleteProduct={handleDeleteProduct}
                     onEditProduct={handleEditProduct}
                   />
-                )
-              )}
+                ))}
             </div>
           </div>
         </div>

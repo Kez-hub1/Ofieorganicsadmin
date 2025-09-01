@@ -1,16 +1,15 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import Home from "./Pages/Home";
-import Dashboard from "./Pages/Dashboard";
-import AddProduct from "./components/AddProduct";
 import AdminProductList from "./Components/AdminProductList";
 import AdminLogin from "./Pages/AdminLogin";
 import Edit from "./Components/Edit";
+import AddProduct from "./Components/AddProduct";
+import Dashboard from "./Pages/Dashboard";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Dashboard />,
   },
   {
     path: "/addproduct",
@@ -19,10 +18,6 @@ const router = createBrowserRouter([
   {
     path: "/adminproductlist",
     element: <AdminProductList />,
-  },
-  {
-    path: "/dashboard",
-    element: <Dashboard />,
   },
   {
     path: "/login",
