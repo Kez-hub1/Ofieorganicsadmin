@@ -98,7 +98,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-
+{/* 
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center">
                 <div className="p-3 rounded-full bg-blue-100">
@@ -111,7 +111,7 @@ const Dashboard = () => {
                   <p className="text-2xl font-bold text-gray-900">Active</p>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center">

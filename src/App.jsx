@@ -1,15 +1,15 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
+import Dashboard from "./Pages/Dashboard";
 import AdminProductList from "./Components/AdminProductList";
 import AdminLogin from "./Pages/AdminLogin";
 import Edit from "./Components/Edit";
 import AddProduct from "./Components/AddProduct";
-import Dashboard from "./Pages/Dashboard";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
+    element: <AdminLogin />,
   },
   {
     path: "/addproduct",
@@ -20,8 +20,8 @@ const router = createBrowserRouter([
     element: <AdminProductList />,
   },
   {
-    path: "/login",
-    element: <AdminLogin />,
+    path: "/dashboard",
+    element: <Dashboard />,
   },
   {
     path: "/edit/:id",
