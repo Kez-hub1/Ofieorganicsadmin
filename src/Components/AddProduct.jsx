@@ -187,7 +187,6 @@ const AddProduct = ({ onAddProduct }) => {
                     <option value="">Select a category</option>
                     <option>Body Care</option>
                     <option>Hair Care</option>
-                    <option>Skincare</option>
                     <option>Wholesome Treats</option>
                   </select>
                 </div>
