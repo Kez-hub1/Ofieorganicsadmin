@@ -28,7 +28,7 @@ const AdminLogin = () => {
         const mockToken = "admin_" + Date.now();
         localStorage.setItem("adminToken", mockToken);
         setLoginStatus("success");
-        navigate("/admindashboard"); // redirect to admin dashboard
+        navigate("/dashboard"); // redirect to admin dashboard
       } else {
         // Try API login as fallback
         const res = await adminLogin(formData.email, formData.password);
@@ -39,7 +39,7 @@ const AdminLogin = () => {
         }
         
         setLoginStatus("success");
-        navigate("/admindashboard"); // redirect to admin dashboard
+        navigate("/dashboard"); 
       }
     } catch (err) {
       console.error("Login failed:", err);
