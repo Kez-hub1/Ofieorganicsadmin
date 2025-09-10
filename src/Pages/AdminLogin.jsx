@@ -1,7 +1,7 @@
 import React, { useState } from 'react'; 
 import { Eye, EyeOff, Lock, Mail, Shield, AlertCircle, CheckCircle } from 'lucide-react';
 import { adminLogin } from '../api/Client';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router'; 
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -11,36 +11,24 @@ const AdminLogin = () => {
   const [loginStatus, setLoginStatus] = useState(null);
   const navigate = useNavigate();
 
-  
-  const ADMIN_EMAIL = "ofieorganics@gmail.com";
-  const ADMIN_PASSWORD = "Botanicals2014";
-
-  // Function to handle login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
-    
-    try {
+    setLoginStatus(null);
 
-      if (formData.email === ADMIN_EMAIL && formData.password === ADMIN_PASSWORD) {
-       
-        const mockToken = "admin_" + Date.now();
-        localStorage.setItem("adminToken", mockToken);
-        setLoginStatus("success");
-        navigate("/dashboard"); // redirect to admin dashboard
-      } else {
-        // Try API login as fallback
-        const res = await adminLogin(formData.email, formData.password);
-        
-        // Store token right away
-        if (res.token) {
-          localStorage.setItem("adminToken", res.token);
-        }
-        
-        setLoginStatus("success");
-        navigate("/dashboard"); 
+    try {
+      const data = await adminLogin(formData.email, formData.password);
+
+      if (data.token) {
+        localStorage.setItem("ACCESS_TOKEN", data.token);
       }
+
+      setLoginStatus("success");
+
+      setTimeout(() => {
+        navigate("/dashboard"); 
+      }, 1500);
     } catch (err) {
       console.error("Login failed:", err);
       setLoginStatus("error");
