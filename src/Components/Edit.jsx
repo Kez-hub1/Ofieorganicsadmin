@@ -156,6 +156,7 @@ const Edit = ({ productToEdit, onSave, onCancel }) => {
                      <option>Body Care</option>
                     <option>Hair Care</option>
                     <option>Wholesome Treats</option>
+                    <option>skincare</option>
                   </select>
                 </div>
                 {/* Price */}

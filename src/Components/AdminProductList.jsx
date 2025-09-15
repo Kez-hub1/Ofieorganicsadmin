@@ -48,7 +48,7 @@ const ProductList = () => {
     <div>
       <h2 className="text-xl font-bold mb-4">My Products</h2>
       {safeProducts.length === 0 ? (
-        <p>No products found.</p>
+        <p>No products found</p>
       ) : (
         <ul>
           {safeProducts.map((product) => (
