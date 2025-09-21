@@ -123,7 +123,7 @@ const AdminProductList = ({ products, onEditProduct }) => {
   const handleConfirmDelete = async () => {
     if (!productToDelete) return;
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("ACCESS_TOKEN");
       await axios.delete(
         `https://keziah-api.onrender.com/api/products/${
           productToDelete.id || productToDelete._id

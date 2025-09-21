@@ -1,6 +1,6 @@
 // Fetch all products
 export const fetchProducts = async () => {
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("ACCESS_TOKEN");
   const response = await apiClient.get("/api/products", {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -32,7 +32,7 @@ export const adminLogin = async (email, password) => {
 };
 
 export const adminAddProduct = async (payload) => {
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("ACCESS_TOKEN");
   return apiClient.post("/api/products", payload, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ export const adminAddProduct = async (payload) => {
 };
 
 export const deleteProduct = async (id) => {
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("ACCESS_TOKEN");
   return apiClient.delete(`/api/products/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -50,7 +50,7 @@ export const deleteProduct = async (id) => {
 };
 
 export const editProduct = async (id, payload) => {
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("ACCESS_TOKEN");
   return apiClient.put(`/api/products/${id}`, payload, {
     headers: {
       Authorization: `Bearer ${token}`,

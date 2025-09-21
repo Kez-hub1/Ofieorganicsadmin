@@ -72,7 +72,7 @@ const Edit = ({ productToEdit, onSave, onCancel }) => {
       payload.append("inStock", formData.inStock);
       if (formData.image) payload.append("image", formData.image);
 
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("ACCESS_TOKEN");
       await apiClient.put(
         `/api/products/${productToEdit.id || productToEdit._id}`,
         payload,
